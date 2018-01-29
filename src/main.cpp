@@ -147,8 +147,7 @@ int main() {
 			}		  
 		  }
 		  
-		  double Lf=2.67;
-		  
+		  double Lf=2.67;		  
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
