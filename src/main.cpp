@@ -88,10 +88,10 @@ int main() {
           // j[1] is the data JSON object
           vector<double> ptsx = j[1]["ptsx"]; // way points 'x' from the simulator - size 6
           vector<double> ptsy = j[1]["ptsy"]; // way points 'y' from the simulator - size 6
-          double px = j[1]["x"];
-          double py = j[1]["y"];
-          double psi = j[1]["psi"];
-          double v = j[1]["speed"];
+          double px = j[1]["x"]; // current car position 
+          double py = j[1]["y"]; // current car position 
+          double psi = j[1]["psi"]; // car heading
+          double v = j[1]["speed"]; // car velocity
 		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
@@ -99,14 +99,13 @@ int main() {
 			double shift_y = ptsy[i]-py;
 
 			ptsx[i] = (shift_x*cos(0-psi) - shift_y*sin(0-psi)); // rotational move
-			ptsy[i] = (shift_x*sin(0-psi) + shift_y*cos(0-psi));  
-		  
+			ptsy[i] = (shift_x*sin(0-psi) + shift_y*cos(0-psi));  		  
 		  }
 		  
-		  double* ptrx=&ptsx[0];
+		  double* ptrx=&ptsx[0]; // converting the vector of doubles to Eigen pointers to be used in polyfit
 		  Eigen::Map<Eigen::VectorXd> ptsx_transform(ptrx,6);
 		  
-		  double* ptry=&ptsy[0];
+		  double* ptry=&ptsy[0]; // converting the vector of doubles to Eigen pointers to be used in polyfit
 		  Eigen::Map<Eigen::VectorXd> ptsy_transform(ptry,6);
 		  
 		  auto coeffs=polyfit(ptsx_transform,ptsy_transform,3);
@@ -114,8 +113,8 @@ int main() {
 		  double cte=polyeval(coeffs,0);
 		  double epsi=-atan(coeffs[1]);
 
-          double steer_value=j[1]["steering angle"];
-          double throttle_value=j[1]["throttle"];
+          //double steer_value=j[1]["steering angle"];
+          //double throttle_value=j[1]["throttle"];
 		  
 		  Eigen::VectorXd state(6);
 		  state<<0,0,0,v,cte,epsi;
@@ -152,7 +151,7 @@ int main() {
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = vars[0]/(deg2rad(25)*Lf);
+          msgJson["steering_angle"] = vars[0];//(deg2rad(25));
           msgJson["throttle"] = vars[1];
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system

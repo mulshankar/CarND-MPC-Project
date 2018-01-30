@@ -66,14 +66,10 @@ class FG_eval {
 
 		//
 		// Setup Constraints
-		//
-		// NOTE: In this section you'll setup the model constraints.
-
-		// Initial constraints
-		//
 		// We add 1 to each of the starting indices due to cost being located at
 		// index 0 of `fg`.
 		// This bumps up the position of all the other values.
+		
 		fg[1 + x_start] = vars[x_start];
 		fg[1 + y_start] = vars[y_start];
 		fg[1 + psi_start] = vars[psi_start];
