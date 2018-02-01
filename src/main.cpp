@@ -92,6 +92,8 @@ int main() {
           double py = j[1]["y"]; // current car position 
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
+		  
+		  v=v*0.44704; //mps conversion for solver
 		  		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
@@ -120,6 +122,12 @@ int main() {
           //double throttle_value=j[1]["throttle"];
 		  
 		  double Lf=2.67;
+		  /*latency=0.1; //seconds
+		  
+		  double x_0=0;
+		  double y_0=0;
+		  double psi_0=0;
+		  double */
 		  
 		  // LATENCY LOGIC INTRODUCED HERE //
 		  
