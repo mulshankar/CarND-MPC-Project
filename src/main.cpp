@@ -92,6 +92,7 @@ int main() {
           double py = j[1]["y"]; // current car position 
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
+		  v = v*0.44704; //mph to m/s 
 		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
@@ -119,7 +120,7 @@ int main() {
 		  double steer_value=j[1]["steering angle"];
           double throttle_value=j[1]["throttle"];
 		  
-		  double Lf=2.67;
+		  //double Lf=2.67;
 		  
 		  // LATENCY LOGIC INTRODUCED HERE //
 		  
@@ -153,7 +154,7 @@ int main() {
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = -vars[0]/(deg2rad(25));
+          msgJson["steering_angle"] = -vars[0];///(deg2rad(25));
           msgJson["throttle"] = vars[1];
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
