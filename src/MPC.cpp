@@ -13,7 +13,7 @@ const double Lf = 2.67;
 
 double cte_des=0;
 double epsi_des=0;
-double v_des=40;
+double v_des=25;
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
@@ -117,7 +117,7 @@ MPC::~MPC() {}
 
 vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	bool ok = true;
-	size_t i;
+	//size_t i;
 	typedef CPPAD_TESTVECTOR(double) Dvector;
 
 	double x = state[0];
@@ -168,8 +168,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	// Acceleration/decceleration upper and lower limits.
 	// NOTE: Feel free to change this to something else.
 	for (int i = a_start; i < n_vars; i++) {
-	vars_lowerbound[i] = -1.0; // full brake
-	vars_upperbound[i] = 1.0; // full throttle
+	vars_lowerbound[i] = -1.0/2; // full brake
+	vars_upperbound[i] = 1.0/2; // full throttle
 	}
 
 	// Lower and upper limits for constraints
