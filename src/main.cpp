@@ -117,8 +117,8 @@ int main() {
           Eigen::VectorXd state(6);
 		  state<<0,0,0,v,cte,epsi;
 		  
-		  double steer_value=j[1]["steering angle"];
-          double throttle_value=j[1]["throttle"];
+		  //double steer_value=j[1]["steering angle"];
+          //double throttle_value=j[1]["throttle"];
 		  
 		  //double Lf=2.67;
 		  
