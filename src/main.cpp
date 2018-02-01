@@ -92,8 +92,7 @@ int main() {
           double py = j[1]["y"]; // current car position 
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
-		  v = v*0.44704; //mph to m/s 
-		  
+		  		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
 			double shift_x = ptsx[i]-px; // translation move
