@@ -136,9 +136,6 @@ int main() {
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
-		  //steer_value=vars[0];
-		  //throttle_value=vars[1];
-
 		  std::cout<<"Steer angle reported by MPC"<<vars[0]<<endl;
 		  std::cout<<"Pedal reported by MPC"<<vars[1]<<endl;		  
 		  
