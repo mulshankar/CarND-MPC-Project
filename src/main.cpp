@@ -93,7 +93,7 @@ int main() {
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
 		  double steer_value=j[1]["steering angle"];
-          //double throttle_value=j[1]["throttle"];
+          double throttle_value=j[1]["throttle"];
 		  
 		  std::cout<<"Steer angle reported by simulator"<<steer_value<<endl;
 		  
@@ -135,9 +135,12 @@ int main() {
 
 		  
 		  auto vars=mpc.Solve(state,coeffs);
+		  
+		  steer_value=vars[0];
+		  throttle_value=vars[1];
 
-		  std::cout<<"Steer angle reported by MPC"<<vars[0]<<endl;
-		  std::cout<<"Pedal reported by MPC"<<vars[1]<<endl;		  
+		  std::cout<<"Steer angle reported by MPC"<<steer_value<<endl;
+		  std::cout<<"Pedal reported by MPC"<<throttle_value<<endl;		  
 		  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
@@ -170,8 +173,8 @@ int main() {
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
 		  
  
-          msgJson["steering_angle"] = -vars[0];//(deg2rad(25)*Lf);
-          msgJson["throttle"] = vars[1];
+          msgJson["steering_angle"] = -steer_value;//(deg2rad(25)*Lf);
+          msgJson["throttle"] = throttle_value;
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
