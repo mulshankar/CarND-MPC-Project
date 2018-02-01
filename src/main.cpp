@@ -119,9 +119,15 @@ int main() {
 		  //double steer_value=j[1]["steering angle"];
           //double throttle_value=j[1]["throttle"];
 		  
-		  //double Lf=2.67;
+		  double Lf=2.67;
 		  
 		  // LATENCY LOGIC INTRODUCED HERE //
+		  
+		  // The purpose is to mimic real driving conditions where
+          // the car does actuate the commands instantly.
+          //
+          // Feel free to play around with this value but should be to drive
+          // around the track with 100ms latency.
 		  
 		  auto vars=mpc.Solve(state,coeffs);		  
 		  
@@ -153,7 +159,7 @@ int main() {
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = -rad2deg(vars[0]);//(deg2rad(25));
+          msgJson["steering_angle"] = -vars[0]/(deg2rad(25)*Lf);
           msgJson["throttle"] = vars[1];
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
@@ -171,14 +177,7 @@ int main() {
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
-          
-		  // Latency
-          // The purpose is to mimic real driving conditions where
-          // the car does actuate the commands instantly.
-          //
-          // Feel free to play around with this value but should be to drive
-          // around the track with 100ms latency.
-          //
+                    
           // NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE
           // SUBMITTING.
           

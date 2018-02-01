@@ -47,7 +47,7 @@ class FG_eval {
 		for (int t = 0; t < N; t++) {
 		  fg[0] += 2000*CppAD::pow(vars[cte_start + t]-cte_des, 2);
 		  fg[0] += 2000*CppAD::pow(vars[epsi_start + t]-epsi_des, 2);
-		  fg[0] += CppAD::pow(vars[v_start + t] - v_des, 2);
+		  fg[0] += 10*CppAD::pow(vars[v_start + t] - v_des, 2);
 		}
 
 		// Minimize the use of actuators.
@@ -161,8 +161,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	// The upper and lower limits of delta are set to -25 and 25
 	// degrees (values in radians).Feel free to change this to something else.
 	for (int i = delta_start; i < a_start; i++) {
-	vars_lowerbound[i] = -0.436332/2; // 25*pi/180
-	vars_upperbound[i] = 0.436332/2;
+	vars_lowerbound[i] = -0.436332*Lf; // 25*pi/180
+	vars_upperbound[i] = 0.436332*Lf;
 	}
 
 	// Acceleration/decceleration upper and lower limits.
