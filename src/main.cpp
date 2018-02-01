@@ -126,7 +126,7 @@ int main() {
 		  
 
           double cte=polyeval(coeffs,x_l);
-		  double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l));
+		  double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);
 		  
 		  Eigen::VectorXd state(6);
 		  state<<x_l,y_l,psi_l,v,cte,epsi;
