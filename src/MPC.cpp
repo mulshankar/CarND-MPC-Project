@@ -161,15 +161,15 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	// The upper and lower limits of delta are set to -25 and 25
 	// degrees (values in radians).Feel free to change this to something else.
 	for (int i = delta_start; i < a_start; i++) {
-	vars_lowerbound[i] = -0.436332*Lf; // 25*pi/180
-	vars_upperbound[i] = 0.436332*Lf;
+	vars_lowerbound[i] = -0.436332; // 25*pi/180
+	vars_upperbound[i] = 0.436332;
 	}
 
 	// Acceleration/decceleration upper and lower limits.
 	// NOTE: Feel free to change this to something else.
 	for (int i = a_start; i < n_vars; i++) {
-	vars_lowerbound[i] = -1.0/2; // full brake
-	vars_upperbound[i] = 1.0/2; // full throttle
+	vars_lowerbound[i] = -1.0; // full brake
+	vars_upperbound[i] = 1.0; // full throttle
 	}
 
 	// Lower and upper limits for constraints

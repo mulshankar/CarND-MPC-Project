@@ -92,9 +92,9 @@ int main() {
           double py = j[1]["y"]; // current car position 
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
+		  double steer_value=j[1]["steering angle"];
+          //double throttle_value=j[1]["throttle"];
 		  
-		  v=v*0.44704; //mps conversion for solver
-		  		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
 			double shift_x = ptsx[i]-px; // translation move
@@ -112,30 +112,25 @@ int main() {
 		  
 		  auto coeffs=polyfit(ptsx_transform,ptsy_transform,3);
 		  
-		  double cte=polyeval(coeffs,0);
-		  double epsi=-atan(coeffs[1]);
-
-          Eigen::VectorXd state(6);
-		  state<<0,0,0,v,cte,epsi;
-		  
-		  //double steer_value=j[1]["steering angle"];
-          //double throttle_value=j[1]["throttle"];
+		  v=v*0.44704; //mps conversion for solver
 		  
 		  double Lf=2.67;
-		  /*latency=0.1; //seconds
-		  
-		  double x_0=0;
-		  double y_0=0;
-		  double psi_0=0;
-		  double */
+		  double latency=0.1; //seconds
+		  double steer_rad=deg2rad(steer_angle);
 		  
 		  // LATENCY LOGIC INTRODUCED HERE //
 		  
-		  // The purpose is to mimic real driving conditions where
-          // the car does actuate the commands instantly.
-          //
-          // Feel free to play around with this value but should be to drive
-          // around the track with 100ms latency.
+		  double x_l=v*latency*cos(steer_rad);
+		  double y_l=v*latency*sin(steer_rad);;
+		  double psi_l=v*-steer_rad*latency/Lf;
+		  
+
+          double cte=polyeval(coeffs,x_l);
+		  double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l));
+		  
+		  Eigen::VectorXd state(6);
+		  state<<x_l,y_l,psi_l,v,cte,epsi;
+
 		  
 		  auto vars=mpc.Solve(state,coeffs);		  
 		  
@@ -165,9 +160,14 @@ int main() {
 		  }		  		  
 
           json msgJson;
+		  
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = -vars[0]/(deg2rad(25)*Lf);
+		  
+		  std::cout<<"Steer angle reported by MPC"<<vars[0]<<endl;
+		  std::cout<<"Pedal reported by MPC"<<vars[1]<<endl;
+		  		  
+          msgJson["steering_angle"] = -vars[0];//(deg2rad(25)*Lf);
           msgJson["throttle"] = vars[1];
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
