@@ -139,7 +139,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	for (int i = 0; i < n_vars; i++) {
 	vars[i] = 0.0;
 	}
-	Set the initial variable values
+	//Set the initial variable values
 	vars[x_start] = x;
 	vars[y_start] = y;
 	vars[psi_start] = psi;
