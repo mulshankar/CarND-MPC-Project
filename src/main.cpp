@@ -95,6 +95,8 @@ int main() {
 		  double steer_value=j[1]["steering angle"];
           //double throttle_value=j[1]["throttle"];
 		  
+		  std::cout<<"Steer angle reported by simulator"<<steer_value<<endl;
+		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
 			double shift_x = ptsx[i]-px; // translation move
@@ -132,7 +134,10 @@ int main() {
 		  state<<x_l,y_l,psi_l,v,cte,epsi;
 
 		  
-		  auto vars=mpc.Solve(state,coeffs);		  
+		  auto vars=mpc.Solve(state,coeffs);
+
+		  std::cout<<"Steer angle reported by MPC"<<vars[0]<<endl;
+		  std::cout<<"Pedal reported by MPC"<<vars[1]<<endl;		  
 		  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
@@ -164,9 +169,7 @@ int main() {
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
 		  
-		  std::cout<<"Steer angle reported by MPC"<<vars[0]<<endl;
-		  std::cout<<"Pedal reported by MPC"<<vars[1]<<endl;
-		  		  
+ 
           msgJson["steering_angle"] = -vars[0];//(deg2rad(25)*Lf);
           msgJson["throttle"] = vars[1];
 
