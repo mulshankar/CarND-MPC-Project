@@ -136,8 +136,8 @@ int main() {
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
-		  std::cout<<"Steer angle reported by MPC"<<vars[0]<<endl;
-		  std::cout<<"Pedal reported by MPC"<<vars[1]<<endl;		  
+		  std::cout<<"Steer angle reported by MPC "<<vars[0]<<endl;
+		  std::cout<<"Pedal reported by MPC "<<vars[1]<<endl;		  
 		  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
