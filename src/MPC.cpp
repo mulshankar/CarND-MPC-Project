@@ -27,8 +27,6 @@ size_t epsi_start = cte_start + N;
 size_t delta_start = epsi_start + N;
 size_t a_start = delta_start + N - 1;
 
-
-
 class FG_eval {
 	 public:
 	  Eigen::VectorXd coeffs;
@@ -47,9 +45,9 @@ class FG_eval {
 	
 		// The part of the cost based on the reference state.
 		for (int t = 0; t < N; t++) {
-		  fg[0] += 5000*CppAD::pow(vars[cte_start + t]-cte_des, 2);
-		  fg[0] += 5000*CppAD::pow(vars[epsi_start + t]-epsi_des, 2);
-		  fg[0] += 10*CppAD::pow(vars[v_start + t] - v_des, 2);
+		  fg[0] += 2000*CppAD::pow(vars[cte_start + t]-cte_des, 2);
+		  fg[0] += 2000*CppAD::pow(vars[epsi_start + t]-epsi_des, 2);
+		  fg[0] += CppAD::pow(vars[v_start + t] - v_des, 2);
 		}
 
 		// Minimize the use of actuators.
@@ -66,8 +64,7 @@ class FG_eval {
 
 		//
 		// Setup Constraints
-		// We add 1 to each of the starting indices due to cost being located at
-		// index 0 of `fg`.
+		// We add 1 to each of the starting indices due to cost being located at index 0 of `fg`.
 		// This bumps up the position of all the other values.
 		
 		fg[1 + x_start] = vars[x_start];
@@ -99,10 +96,9 @@ class FG_eval {
 		  AD<double> delta0 = vars[delta_start + t - 1];
 		  AD<double> a0 = vars[a_start + t - 1];
 
-		  AD<double> f0 = coeffs[0] + coeffs[1] * x0;
-		  AD<double> psides0 = CppAD::atan(coeffs[1]);
-		  
-		  
+		  AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * x0 *x0 + coeffs[3] * x0 *x0 *x0;
+		  AD<double> psides0 = CppAD::atan(3*coeffs[3]*x0*x0+2*coeffs[2]*x0+coeffs[1]);
+		  		  
 		  fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
 		  fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
 		  fg[1 + psi_start + t] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
@@ -143,13 +139,13 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	for (int i = 0; i < n_vars; i++) {
 	vars[i] = 0.0;
 	}
-	// Set the initial variable values
+	/* Set the initial variable values
 	vars[x_start] = x;
 	vars[y_start] = y;
 	vars[psi_start] = psi;
 	vars[v_start] = v;
 	vars[cte_start] = cte;
-	vars[epsi_start] = epsi;
+	vars[epsi_start] = epsi;*/
 
 	// Lower and upper limits for x
 	Dvector vars_lowerbound(n_vars);

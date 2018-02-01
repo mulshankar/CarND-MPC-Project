@@ -113,11 +113,15 @@ int main() {
 		  double cte=polyeval(coeffs,0);
 		  double epsi=-atan(coeffs[1]);
 
-          //double steer_value=j[1]["steering angle"];
-          //double throttle_value=j[1]["throttle"];
-		  
-		  Eigen::VectorXd state(6);
+          Eigen::VectorXd state(6);
 		  state<<0,0,0,v,cte,epsi;
+		  
+		  double steer_value=j[1]["steering angle"];
+          double throttle_value=j[1]["throttle"];
+		  
+		  double Lf=2.67;
+		  
+		  // LATENCY LOGIC INTRODUCED HERE //
 		  
 		  auto vars=mpc.Solve(state,coeffs);		  
 		  
@@ -144,9 +148,7 @@ int main() {
 			else {
 				mpc_y_vals.push_back(vars[i]);			
 			}		  
-		  }
-		  
-		  double Lf=2.67;		  
+		  }		  		  
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
