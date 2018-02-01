@@ -116,12 +116,12 @@ int main() {
 		  
 		  double Lf=2.67;
 		  double latency=0.1; //seconds
-		  double steer_rad=deg2rad(steer_angle);
+		  double steer_rad=deg2rad(steer_value);
 		  
 		  // LATENCY LOGIC INTRODUCED HERE //
 		  
 		  double x_l=v*latency*cos(steer_rad);
-		  double y_l=v*latency*sin(steer_rad);;
+		  double y_l=v*latency*sin(steer_rad);
 		  double psi_l=v*-steer_rad*latency/Lf;
 		  
 
