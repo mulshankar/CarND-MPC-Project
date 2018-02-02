@@ -84,6 +84,9 @@ int main() {
 	ofstream myfile;
     myfile.open ("Debug.csv");
     myfile << "delta,accel,\n";
+	int iters=100;
+	int it=0;
+	bool fileclosed=false;
 	
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
@@ -143,8 +146,16 @@ int main() {
 		  auto vars=mpc.Solve(state,coeffs);
 		  
 		  /**** DEBUG FILE WRITING ****/	
+		  if ((it<=iters)&&(fileclosed==false)) {
+			myfile <<-vars[0]<<","<<vars[1]<<",\n";
+			it++;		  
+		  }
+		  else if ((it>iters)&&(fileclosed==false)) {
+			myfile.close();
+			fileclosed=true;
+		  }
 		  
-		  myfile <<-vars[0]<<","<<vars[1]<<",\n";
+		  
 				  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
@@ -207,9 +218,7 @@ int main() {
         std::string msg = "42[\"manual\",{}]";
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
       }
-    }
-	
-	myfile.close();
+    }	
   });
   
   
