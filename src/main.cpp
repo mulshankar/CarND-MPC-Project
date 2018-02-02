@@ -71,8 +71,9 @@ int main() {
 
   // MPC is initialized here!
   MPC mpc;
-  
-
+  ofstream myfile;
+  myfile.open ("Debug.csv");
+  myfile << "Iteration,delta,accel,\n";
  
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -81,13 +82,6 @@ int main() {
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
     cout << sdata << endl;
-	
-	int iters=100;
-	int it=0;
-	ofstream myfile;
-	myfile.open ("Debug.csv");
-	myfile << "Iteration,delta,accel,\n";
-	bool fileclosed=false;
 	
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
@@ -147,16 +141,9 @@ int main() {
 		  auto vars=mpc.Solve(state,coeffs);
 		  
 		  /**** DEBUG FILE WRITING ****/	
-		  if ((it<=iters)&&(fileclosed==false)) {
-			myfile <<it<<","<<-vars[0]<<","<<vars[1]<<",\n";
-			it++;			
-		  }
-		  else if (fileclosed==false) {
 		  
-			myfile.close();
-			fileclosed=true;
-		  }
-		  
+		  myfile <<it<<","<<-vars[0]<<","<<vars[1]<<",\n";
+				  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
           vector<double> next_y_vals;
@@ -220,6 +207,8 @@ int main() {
       }
     }
   });
+  
+  myfile.close();
 
   // We don't need this since we're not using HTTP but if it's removed the
   // program
