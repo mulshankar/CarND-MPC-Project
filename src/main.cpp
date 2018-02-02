@@ -90,6 +90,7 @@ int main() {
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
 		  double steer_value=j[1]["steering_angle"];// steer angle reported by simulator
+		  double accel=j[1]["throttle"];// throttle reported by simulator
           		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
@@ -110,24 +111,40 @@ int main() {
 		  
 		  v=v*0.44704; //mps conversion for solver?
 		  
-		  /*double Lf=2.67; // center of gravity to front axle.. refer udacity lecture for details..
+		  double Lf=2.67; // center of gravity of vehicle to front axle.. a vehicle constant provided by Udacity
 		  double latency=0.1; //seconds
-		  double steer_rad=deg2rad(steer_value);
+		  double steer_rad=-deg2rad(steer_value);// negative sign to keep convention consistent with simulator
 		  
-		  // LATENCY LOGIC INTRODUCED HERE //
+		  /* LATENCY LOGIC INTRODUCED HERE 		  
+		  x_t+1=xt+v*cos(psi)*dt;
+		  y_t+1=yt+v*sin(psi)*dt;
+		  psi_t+1=psi+(v/Lf)*delta*dt
+		  v_t+1=v+a*t;
+		  cte_t+1=f(x)-y+v*sin(epsi)*dt; // where epsi=psi-psi_des
+		  epsi_t+1=psi-psi_des+(v/Lf)*delta*dt;
 		  
-		  double x_l=px+v*latency*cos(-steer_rad);
-		  double y_l=py+v*latency*sin(-steer_rad);
-		  double psi_l=psi+v*(-steer_rad)*latency/Lf; */
-		
-
-          //double cte=polyeval(coeffs,x_l);
-          double cte=polyeval(coeffs,0);
-		  //double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);
-		  double epsi=-atan(coeffs[1]);
+		  * Before calculating delta and accel via MPC, predict states at latency dt		  
+		  * We are already in the car coordinate system.. x,y and psi are 0 */
+		  
+		  double x_l=0+v*cos(0)*latency;
+		  double y_l=0+v*sin(0)*latency;
+		  double psi_l=0+(v/Lf)*(steer_rad)*latency;
+		  double v_l=v+accel*latency;
+		  
+		  double epsi=0-atan(coeffs[1]); // psi - psi_des at current time step		  
+		  double cte_l=polyeval(coeffs,0)-0+v*sin(epsi)*latency;
+		  
+		  double epsi_l=0-atan(coeffs[1])+(v/Lf)*(steer_rad)*latency;		  
+		  
+          //double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);		  
+		  //double cte=polyeval(coeffs,x_l);
+          //double cte=polyeval(coeffs,0);
+		  
+		  //double epsi=-atan(coeffs[1]);
 		  
 		  Eigen::VectorXd state(6);
-		  state<<0,0,0,v,cte,epsi;
+		  //state<<0,0,0,v,cte,epsi;
+		  state<<x_l,y_l,psi_l,v_l,cte_l,epsi_l;
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
