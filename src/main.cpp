@@ -84,7 +84,7 @@ int main() {
 	ofstream myfile;
     myfile.open ("Debug.csv");
     myfile << "delta,accel,\n";
-	int iters=100;
+	int iters=20;
 	int it=0;
 	bool fileclosed=false;
 	
@@ -148,7 +148,8 @@ int main() {
 		  /**** DEBUG FILE WRITING ****/	
 		  if ((it<=iters)&&(fileclosed==false)) {
 			myfile <<-vars[0]<<","<<vars[1]<<",\n";
-			it++;		  
+			it++;
+			cout<<"iteration"<<it<<endl;
 		  }
 		  else if ((it>iters)&&(fileclosed==false)) {
 			myfile.close();
