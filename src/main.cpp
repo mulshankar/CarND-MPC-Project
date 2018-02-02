@@ -8,7 +8,6 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "MPC.h"
 #include "json.hpp"
-#include <fstream>
 
 // for convenience
 using json = nlohmann::json;
@@ -43,10 +42,9 @@ double polyeval(Eigen::VectorXd coeffs, double x) {
 }
 
 // Fit a polynomial.
-// Adapted from
-// https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
-Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
-                        int order) {
+// Adapted from https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
+
+Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,int order) {
   assert(xvals.size() == yvals.size());
   assert(order >= 1 && order <= xvals.size() - 1);
   Eigen::MatrixXd A(xvals.size(), order + 1);
@@ -60,7 +58,6 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
       A(j, i + 1) = A(j, i) * xvals(j);
     }
   }
-
   auto Q = A.householderQr();
   auto result = Q.solve(yvals);
   return result;
@@ -70,8 +67,7 @@ int main() {
   uWS::Hub h;
 
   // MPC is initialized here!
-  MPC mpc;
-  
+  MPC mpc;  
  
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -79,15 +75,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    cout << sdata << endl;
-	
-	/*ofstream myfile;
-    myfile.open ("Debug.csv");
-    myfile << "delta,accel,\n";
-	int iters=20;
-	int it=0;
-	bool fileclosed=false;*/
-	
+    cout << sdata << endl;		
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -102,10 +90,7 @@ int main() {
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
 		  double steer_value=j[1]["steering_angle"];// steer angle reported by simulator
-          //double throttle_value=j[1]["throttle"]; // throttle value reported by simulator
-		  
-		  //std::cout<<"Steer angle reported by simulator"<<steer_value<<endl;
-		  		  
+          		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
 			double shift_x = ptsx[i]-px; // translation move
@@ -121,11 +106,11 @@ int main() {
 		  double* ptry=&ptsy[0]; // converting the vector of doubles to Eigen pointers to be used in polyfit
 		  Eigen::Map<Eigen::VectorXd> ptsy_transform(ptry,6);
 		  
-		  auto coeffs=polyfit(ptsx_transform,ptsy_transform,3);
+		  auto coeffs=polyfit(ptsx_transform,ptsy_transform,3); // fit the way-points to a third order polynomial
 		  
-		  //v=v*0.44704; //mps conversion for solver
+		  //v=v*0.44704; //mps conversion for solver?
 		  
-		  double Lf=2.67;
+		  double Lf=2.67; // center of gravity to front axle.. refer udacity lecture for details..
 		  double latency=0.1; //seconds
 		  double steer_rad=deg2rad(steer_value);
 		  
@@ -133,31 +118,16 @@ int main() {
 		  
 		  double x_l=v*latency*cos(steer_rad);
 		  double y_l=v*latency*sin(steer_rad);
-		  double psi_l=v*-steer_rad*latency/Lf;
-		  
+		  double psi_l=v*-steer_rad*latency/Lf;		  
 
           double cte=polyeval(coeffs,x_l);
 		  double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);
 		  
 		  Eigen::VectorXd state(6);
 		  state<<x_l,y_l,psi_l,v,cte,epsi;
-
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
-		  /**** DEBUG FILE WRITING 	
-		  if ((it<=iters)&&(fileclosed==false)) {
-			myfile <<-vars[0]<<","<<vars[1]<<",\n";
-			it++;
-			cout<<"iteration"<<it<<endl;
-		  }
-		  else if ((it>iters)&&(fileclosed==false)) {
-			myfile.close();
-			fileclosed=true;
-		  }*/
-		  
-		  
-				  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
           vector<double> next_y_vals;
@@ -186,8 +156,7 @@ int main() {
           json msgJson;
 		  
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
-          // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-		  
+          // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].		  
  
           msgJson["steering_angle"] = -vars[0];///(deg2rad(25)*Lf);
           msgJson["throttle"] = vars[1];
