@@ -13,7 +13,7 @@ const double Lf = 2.67;
 
 double cte_des=0;
 double epsi_des=0;
-double v_des=25*0.44704;//mph to mps
+double v_des=25;//*0.44704;//mph to mps
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
