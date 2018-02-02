@@ -71,7 +71,14 @@ int main() {
 
   // MPC is initialized here!
   MPC mpc;
-
+  
+  int iters=100;
+  int it=0;
+  ofstream myfile;
+  myfile.open ("Debug.csv");
+  myfile << "Iteration,delta,accel,\n";
+  bool fileclosed=false;
+  
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -93,10 +100,10 @@ int main() {
           double psi = j[1]["psi"]; // car heading
           double v = j[1]["speed"]; // car velocity
 		  double steer_value=j[1]["steering_angle"];// steer angle reported by simulator
-          double throttle_value=j[1]["throttle"]; // throttle value reported by simulator
+          //double throttle_value=j[1]["throttle"]; // throttle value reported by simulator
 		  
 		  std::cout<<"Steer angle reported by simulator"<<steer_value<<endl;
-		  
+		  		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
 			double shift_x = ptsx[i]-px; // translation move
@@ -136,8 +143,16 @@ int main() {
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
-		  std::cout<<"Steer angle reported by MPC "<<vars[0]<<endl;
-		  std::cout<<"Pedal reported by MPC "<<vars[1]<<endl;		  
+		  /**** DEBUG FILE WRITING ****/	
+		  if ((it<=iters)&&(fileclosed==false)) {
+			myfile <<it<<","<<-vars[0]<<","<<vars[1]<<",\n";
+			it++;			
+		  }
+		  else if (fileclosed==false) {
+		  
+			myfile.close();
+			fileclosed=true;
+		  }
 		  
 		  //Display the waypoints/reference line
           vector<double> next_x_vals;
