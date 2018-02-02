@@ -81,12 +81,12 @@ int main() {
     string sdata = string(data).substr(0, length);
     cout << sdata << endl;
 	
-	ofstream myfile;
+	/*ofstream myfile;
     myfile.open ("Debug.csv");
     myfile << "delta,accel,\n";
 	int iters=20;
 	int it=0;
-	bool fileclosed=false;
+	bool fileclosed=false;*/
 	
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
@@ -104,7 +104,7 @@ int main() {
 		  double steer_value=j[1]["steering_angle"];// steer angle reported by simulator
           //double throttle_value=j[1]["throttle"]; // throttle value reported by simulator
 		  
-		  std::cout<<"Steer angle reported by simulator"<<steer_value<<endl;
+		  //std::cout<<"Steer angle reported by simulator"<<steer_value<<endl;
 		  		  
 		  for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to car coordinate system
 			
@@ -145,7 +145,7 @@ int main() {
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
-		  /**** DEBUG FILE WRITING ****/	
+		  /**** DEBUG FILE WRITING 	
 		  if ((it<=iters)&&(fileclosed==false)) {
 			myfile <<-vars[0]<<","<<vars[1]<<",\n";
 			it++;
@@ -154,7 +154,7 @@ int main() {
 		  else if ((it>iters)&&(fileclosed==false)) {
 			myfile.close();
 			fileclosed=true;
-		  }
+		  }*/
 		  
 		  
 				  
