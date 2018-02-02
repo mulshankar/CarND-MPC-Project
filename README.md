@@ -61,7 +61,7 @@ for (int i=0;i<ptsx.size();i++) { // Transform way points from map coordinate to
 ```
 Once the way points are converted to the car's co-ordinate system, a 3rd order polynomial is fit to generalize the way-points. This polynomial would form the desired/reference trajectory that the MPC algorithm wants the car to follow. 
 
-The car's current states are received from the simulator. The car's current states along with the polynomial coefficients are passed to the MPC algorithm function. The MPC algorithm projects the car's states into the future and calculates the desired steer and throttle actuation that minimized the cross track and orientation errors. 
+The car's current states are received from the simulator. The car's current states along with the polynomial coefficients are passed to the MPC algorithm. The MPC algorithm projects the car's states into the future and calculates the desired steer and throttle actuation that minimizes the cross track and orientation errors. 
 
 The received commands from the MPC algorithm were fed into the simulator and verified to ensure the car runs smooth without veering off the desired path or outside the curb. 
 
@@ -85,17 +85,18 @@ The next step applies the constraints for the states and acutations. The differe
 ```
 // The upper and lower limits of delta are set to -25 and 25
 // degrees (values in radians).Feel free to change this to something else.
-	for (int i = delta_start; i < a_start; i++) {
-	vars_lowerbound[i] = -0.436332; // 25*pi/180
-	vars_upperbound[i] = 0.436332;
-	}
+	
+for (int i = delta_start; i < a_start; i++) {
+vars_lowerbound[i] = -0.436332; // 25*pi/180
+vars_upperbound[i] = 0.436332;
+}
 
-	// Acceleration/decceleration upper and lower limits.
-	// NOTE: Feel free to change this to something else.
-	for (int i = a_start; i < n_vars; i++) {
-	vars_lowerbound[i] = -1.0; // full brake
-	vars_upperbound[i] = 1.0; // full throttle
-	}
+// Acceleration/decceleration upper and lower limits.
+// NOTE: Feel free to change this to something else.
+for (int i = a_start; i < n_vars; i++) {
+vars_lowerbound[i] = -1.0; // full brake
+vars_upperbound[i] = 1.0; // full throttle
+}
 
 ```
 Interior Point Optimizer (Ipopt - https://projects.coin-or.org/Ipopt) was used to solve the framed optimization problem. Ipopt is an open source software package for large scale non-linear optimization. Ipopt requires we give it the jacobians and hessians directly - it does not compute them for us. Hence, we need to either manually compute them or have a library do this for us. Luckily, there is a library called CppAD which does exactly this. By using CppAD we don't have to manually compute derivatives, which is tedious and prone to error.
@@ -110,7 +111,7 @@ CppAD::ipopt::solve<Dvector, FG_eval>(
   constraints_upperbound, fg_eval, solution);
 
 ```
-FG_eval contains the cost function and sets up the constraints for Ipopt in the desired fashion. The cost function used for the optimization is shown below. As seen, there are three parts to the cost function. The first part deals with error minimization. A velocity error term is introduced also to ensure the car does not simply stop once the cross track and orientation errors are minimized. The second part of the cost function is to constrain excessive use of the actuators. The third part of the cost function is to constrain relative change in actuators. This minimizes abrupt changes in the actuator positions, especially the steer angle.  
+FG_eval contains the cost function and sets up the constraints in the desired fashion for Ipopt. The cost function used for the optimization is shown below. As seen, there are three parts to the cost function. The first part deals with error minimization. A velocity error term is introduced to ensure the car does not simply stop once the cross track and orientation errors are minimized. The second part of the cost function is to constrain excessive use of the actuators. The third part of the cost function is to constrain relative change in actuators. This minimizes abrupt changes in the actuator positions, especially the steer angle.  
 
 ```
 // Reference State Cost
@@ -141,7 +142,7 @@ The values shown above worked well for this project.
 
 ## Latency
 
-In real world, there is always some latency in response time of actuators. One of the strong suites of the MPC algorithm is the fact that this latency can be seamlessly integrated into the control structure. In this case, a latency of 100 milliseconds is assumed. The states are estimated using the motion model over the next 100 milliseconds. This estimated state is then passed over to the MPC algorithm to calculate the optimized actuations at the next time step. The code below implements this latency concept for this project. 
+In real world, there is always some latency in response time of actuators. One of the strong suites of the MPC algorithm is the fact that this latency can be seamlessly integrated into the control structure. In this case, a latency of 100 milliseconds is assumed. The states are estimated using the motion model over the next 100 milliseconds. This estimated state is then passed over to the MPC algorithm to calculate the optimized actuations at the next time step. The code below handles the actuator latency for this project. 
 
 ```
 //Before calculating delta and accel via MPC, predict states at latency dt		  
@@ -163,7 +164,7 @@ state<<x_l,y_l,psi_l,v_l,cte_l,epsi_l;
 ```
 ## Closure
 
-A Model Predictive Controller was implemented on a self driving car for navigating around the Udacity provided test track. The gains were tuned in order to maximize speed across the track. The car top speed was around 45 mph. The car navigated very well within the test track without going into the curbs under all circumstances. 
+A Model Predictive Controller was implemented on a self driving car for navigating around the Udacity provided test track. The gains were tuned in order to maximize speed across the track. The car top speed was around 45 mph. The car navigated very well within the test track without going off the curbs under all circumstances. Multiple laps yielded the same result thus verifying repeatability. 
 
 
 
