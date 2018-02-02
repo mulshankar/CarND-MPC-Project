@@ -109,7 +109,7 @@ int main() {
 		  
 		  auto coeffs=polyfit(ptsx_transform,ptsy_transform,3); // fit the way-points to a third order polynomial
 		  
-		  v=v*0.44704; //mps conversion for solver?
+		  v=v*0.44704; //mps conversion for solver
 		  
 		  double Lf=2.67; // center of gravity of vehicle to front axle.. a vehicle constant provided by Udacity
 		  double latency=0.1; //seconds
