@@ -110,21 +110,24 @@ int main() {
 		  
 		  v=v*0.44704; //mps conversion for solver?
 		  
-		  double Lf=2.67; // center of gravity to front axle.. refer udacity lecture for details..
+		  /*double Lf=2.67; // center of gravity to front axle.. refer udacity lecture for details..
 		  double latency=0.1; //seconds
 		  double steer_rad=deg2rad(steer_value);
 		  
 		  // LATENCY LOGIC INTRODUCED HERE //
 		  
-		  double x_l=v*latency*cos(steer_rad);
-		  double y_l=v*latency*sin(steer_rad);
-		  double psi_l=v*-steer_rad*latency/Lf;		  
+		  double x_l=px+v*latency*cos(-steer_rad);
+		  double y_l=py+v*latency*sin(-steer_rad);
+		  double psi_l=psi+v*(-steer_rad)*latency/Lf; */
+		
 
-          double cte=polyeval(coeffs,x_l);
-		  double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);
+          //double cte=polyeval(coeffs,x_l);
+          double cte=polyeval(coeffs,0);
+		  //double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);
+		  double epsi=-atan(coeffs[1]);
 		  
 		  Eigen::VectorXd state(6);
-		  state<<x_l,y_l,psi_l,v,cte,epsi;
+		  state<<0,0,0,v,cte,epsi;
 		  
 		  auto vars=mpc.Solve(state,coeffs);
 		  
