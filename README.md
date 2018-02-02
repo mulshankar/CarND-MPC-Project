@@ -1,108 +1,65 @@
-# CarND-Controls-MPC
+# CarND-Controls-Model Predictive Control Project
 Self-Driving Car Engineer Nanodegree Program
 
 ---
 
-## Dependencies
+## Project Objectives
 
-* cmake >= 3.5
- * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1(mac, linux), 3.81(Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools]((https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-* [uWebSockets](https://github.com/uWebSockets/uWebSockets)
-  * Run either `install-mac.sh` or `install-ubuntu.sh`.
-  * If you install from source, checkout to commit `e94b6e1`, i.e.
-    ```
-    git clone https://github.com/uWebSockets/uWebSockets
-    cd uWebSockets
-    git checkout e94b6e1
-    ```
-    Some function signatures have changed in v0.14.x. See [this PR](https://github.com/udacity/CarND-MPC-Project/pull/3) for more details.
-
-* **Ipopt and CppAD:** Please refer to [this document](https://github.com/udacity/CarND-MPC-Project/blob/master/install_Ipopt_CppAD.md) for installation instructions.
-* [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page). This is already part of the repo so you shouldn't have to worry about it.
-* Simulator. You can download these from the [releases tab](https://github.com/udacity/self-driving-car-sim/releases).
-* Not a dependency but read the [DATA.md](./DATA.md) for a description of the data sent back from the simulator.
+Tune a PID controller to enable a self driving car to navigate around a track provided by the Udacity simulator.
 
 
-## Basic Build Instructions
+## Reflections
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./mpc`.
+The PID controller for this project operates on the Cross Track Error (CTE). This refers to the deviation of the car from the center of the track. The error can be mitigated via 3 actuators - steer, throttle and angle. 
 
-## Tips
+The first actuator that was controlled was steer. The process of finding the gains of the PID controller is explained below. The tuning was done in a manual fashion based on recorded values of the CTE and corresponding steer value used to compensate for the CTE. The three gains corresponding to the proportional, integral and derivative components are hereby referred to as Kp, Ki and Kd. 
 
-1. It's recommended to test the MPC on basic examples to see if your implementation behaves as desired. One possible example
-is the vehicle starting offset of a straight line (reference). If the MPC implementation is correct, after some number of timesteps
-(not too many) it should find and track the reference line.
-2. The `lake_track_waypoints.csv` file has the waypoints of the lake track. You could use this to fit polynomials and points and see of how well your model tracks curve. NOTE: This file might be not completely in sync with the simulator so your solution should NOT depend on it.
-3. For visualization this C++ [matplotlib wrapper](https://github.com/lava/matplotlib-cpp) could be helpful.)
-4.  Tips for setting up your environment are available [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-5. **VM Latency:** Some students have reported differences in behavior using VM's ostensibly a result of latency.  Please let us know if issues arise as a result of a VM environment.
+Kp - the first mode of correction that was applied. It provides a simple mapping between the CTE to the steer value. Higher the Kp, faster the response but the system can beome unstable and oscillate if the value given is too high. Based on the CTE to steer value ratio, a value of -0.1 was chosen to begin with. Note that the steer value is in a direction opposite to that of the CTE. A car that is drifting right needs a steer correction to the left to bring it back on track. The gain selection was done based on the CTE. For low CTE, a value of -0.05 was sufficient. If the CTE became greater than 1.5 a heavier gain was applied as shown below. 
 
-## Editor Settings
+```
+if (fabs(cte)>1.5) {		  
+pid.Kp=-0.065;
+}
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+else {
+pid.Kp=-0.05;
+}
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+```
 
-## Code Style
+Kd - Kd terms balances any oscillations that are caused by the Kp correction. The value of Kp and Kd balance out the oscillations while responding faster to the CTE. A value of -0.001 worked well for this project.
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+Ki - this term tries to mitigate any steady state error in the system. This gain did not have a major impact on this project since the tracks are consistenly changing. A small value of -0.0002 worked well for this project. 
 
-## Project Instructions and Rubric
+All the above gains work only if speed of the vehicle is controlled. In normal world driving, the natural response to an upcoming sharp turn is to slow down the vehicle. A simple P controller was implemented on the throttle command based on the CTE and desired speed. The throttle controller would switch desired speed based on CTE. Some simple saturation limits were applied. The throttle control is shown below:
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+```
+/*----------throttle control----------------*/
+		  
+double desired_speed;
+double error_speed;
 
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/b1ff3be0-c904-438e-aad3-2b5379f0e0c3/concepts/1a2255a0-e23c-44cf-8d41-39b8a3c8264a)
-for instructions and the project rubric.
+if (fabs(cte)<1.0){
+desired_speed=15;
+}
+else {
+desired_speed=5;
+}
 
-## Hints!
+error_speed=speed-desired_speed;
 
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
+double thr_ff=0.1;		  
+double Kp_thr=-0.01;
 
-## Call for IDE Profiles Pull Requests
+double thr_fdbk=Kp_thr*(error_speed);
 
-Help your fellow students!
+double thr_cmd_final=thr_ff+thr_fdbk;
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
+thr_cmd_final=std::max(0.03,thr_cmd_final);
+thr_cmd_final=std::min(0.25,thr_cmd_final);
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+/*------------------------------------------*/
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+```
+A feed-forward value of 0.1 was used to accelerate the vehicle. The final command is based on CTE but is always above 0.03 to ensure forward propogation. This worked well for this project.
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).

@@ -136,14 +136,7 @@ int main() {
 		  
 		  double epsi_l=0-atan(coeffs[1])+(v/Lf)*(steer_rad)*latency;		  
 		  
-          //double epsi=-atan(coeffs[1]+2*coeffs[2]*x_l+2*coeffs[3]*x_l*x_l);		  
-		  //double cte=polyeval(coeffs,x_l);
-          //double cte=polyeval(coeffs,0);
-		  
-		  //double epsi=-atan(coeffs[1]);
-		  
 		  Eigen::VectorXd state(6);
-		  //state<<0,0,0,v,cte,epsi;
 		  state<<x_l,y_l,psi_l,v_l,cte_l,epsi_l;
 		  
 		  auto vars=mpc.Solve(state,coeffs);
@@ -152,7 +145,7 @@ int main() {
           vector<double> next_x_vals;
           vector<double> next_y_vals;
 		  
-		  double inc=2.5;
+		  double inc=2.5; // distance increment
 		  int num_pts=25;
 		  
 		  for (int i=0;i<num_pts;i++) {		  
@@ -164,7 +157,7 @@ int main() {
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 		  
-		  for (int i=2;i<vars.size();i++) {
+		  for (int i=2;i<vars.size();i++) { // refer to vars construction in MPC.cpp.. first 2 terms are steer and pedal
 			if(i%2 == 0) {
 				mpc_x_vals.push_back(vars[i]);			
 			}
@@ -173,12 +166,9 @@ int main() {
 			}		  
 		  }		  		  
 
-          json msgJson;
+          json msgJson; // send to simulator object
 		  
-          // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
-          // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].		  
- 
-          msgJson["steering_angle"] = -vars[0];///(deg2rad(25)*Lf);
+          msgJson["steering_angle"] = -vars[0];//negative sign to stay consistent with simulator convention
           msgJson["throttle"] = vars[1];
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
