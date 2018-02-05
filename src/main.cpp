@@ -113,8 +113,7 @@ int main() {
 		  
 		  double Lf=2.67; // center of gravity of vehicle to front axle.. a vehicle constant provided by Udacity
 		  double latency=0.1; //seconds
-		  double steer_rad=-deg2rad(steer_value);// negative sign to keep convention consistent with simulator
-		  
+		    
 		  /* LATENCY LOGIC INTRODUCED HERE 		  
 		  x_t+1=xt+v*cos(psi)*dt;
 		  y_t+1=yt+v*sin(psi)*dt;
@@ -128,13 +127,13 @@ int main() {
 		  
 		  double x_l=0+v*cos(0)*latency;
 		  double y_l=0+v*sin(0)*latency;
-		  double psi_l=0+(v/Lf)*(steer_rad)*latency;
+		  double psi_l=0+(v/Lf)*(steer_value)*latency;
 		  double v_l=v+accel*latency;
 		  
-		  double epsi=0-atan(coeffs[1]); // psi - psi_des at current time step		  
+		  double epsi=0-atan(coeffs[1]); // psi - psi_des at current time step x=0 in -atan(3*coeffs[2]*x^2+2*coeffs[2]*x+coeffs[1])	  
 		  double cte_l=polyeval(coeffs,0)-0+v*sin(epsi)*latency;
 		  
-		  double epsi_l=0-atan(coeffs[1])+(v/Lf)*(steer_rad)*latency;		  
+		  double epsi_l=0-atan(coeffs[1])+(v/Lf)*(steer_value)*latency;		  
 		  
 		  Eigen::VectorXd state(6);
 		  state<<x_l,y_l,psi_l,v_l,cte_l,epsi_l;
